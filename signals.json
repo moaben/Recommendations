@@ -1,0 +1,83 @@
+import yfinance as yf
+import ta
+import requests
+import json
+import datetime
+
+# ========== إعدادات ==========
+FMP_API_KEY = 'dSxFBthNyGKX2ucv0IHD0pcjGeSKKeNs'
+symbol = 'EURUSD=X'
+symbol_clean = 'EURUSD'
+
+# ========== [1] التحليل الفني ==========
+data = yf.download(symbol, period='30d', interval='1h')
+
+rsi = ta.momentum.RSIIndicator(close=data['Close'], window=14)
+data['RSI'] = rsi.rsi()
+
+macd = ta.trend.MACD(close=data['Close'])
+data['MACD'] = macd.macd()
+data['MACD_signal'] = macd.macd_signal()
+
+last_rsi = data['RSI'].iloc[-1]
+last_macd = data['MACD'].iloc[-1]
+last_macd_signal = data['MACD_signal'].iloc[-1]
+
+if last_rsi > 60 and last_macd > last_macd_signal:
+    trend = "bullish"
+elif last_rsi < 40 and last_macd < last_macd_signal:
+    trend = "bearish"
+else:
+    trend = "neutral"
+
+# ========== [2] التحليل الإخباري ==========
+url = f'https://financialmodelingprep.com/api/v3/fmp/articles?apikey={FMP_API_KEY}'
+response = requests.get(url)
+articles = response.json()
+
+positive_keywords = ['growth', 'bullish', 'rate cut', 'strong', 'positive']
+negative_keywords = ['recession', 'inflation', 'crisis', 'bearish', 'rate hike']
+
+news_sentiment = 0
+for article in articles[:5]:
+    content = (article['title'] + " " + str(article['text'])).lower()
+    for word in positive_keywords:
+        if word in content:
+            news_sentiment += 1
+    for word in negative_keywords:
+        if word in content:
+            news_sentiment -= 1
+
+if news_sentiment > 0:
+    news_trend = "positive"
+elif news_sentiment < 0:
+    news_trend = "negative"
+else:
+    news_trend = "neutral"
+
+# ========== [3] القرار النهائي ==========
+if trend == "bullish" and news_trend == "positive":
+    signal = "Buy"
+    confidence = 90
+elif trend == "bearish" and news_trend == "negative":
+    signal = "Sell"
+    confidence = 90
+elif trend == news_trend:
+    signal = "Hold"
+    confidence = 60
+else:
+    signal = "Neutral"
+    confidence = 50
+
+# ========== [4] حفظ التوصية في ملف JSON ==========
+result = [{
+    "symbol": symbol_clean,
+    "signal": signal,
+    "confidence": confidence,
+    "time": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+}]
+
+with open("signals.json", "w") as f:
+    json.dump(result, f, indent=2)
+
+print("✅ تم حفظ التوصيات في ملف signals.json")
