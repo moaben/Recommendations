@@ -1,29 +1,0 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>لوحة توصيات بوت التداول</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="container">
-    <h1>⚖️ لوحة توصيات بوت التداول</h1>
-
-    <div id="password-section">
-      <p>🔐 أدخل كلمة المرور لعرض التوصيات:</p>
-      <input type="password" id="passwordInput" placeholder="كلمة المرور..." />
-      <button onclick="checkPassword()">دخول</button>
-      <p id="error" class="error"></p>
-    </div>
-
-    <div id="recommendation" class="hidden">
-      <h2>📊 التوصية الحالية</h2>
-      <pre id="output">...جاري تحميل التوصية</pre>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
-</body>
-</html>
-
