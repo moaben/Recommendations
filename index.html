@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>توصيات التداول</title>
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      text-align: center;
+      padding: 40px;
+    }
+    #signal-container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #007bff;
+    }
+    p {
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="signal-container">
+    <h2>📈 توصيات التداول</h2>
+    <p id="final-decision">... جاري تحميل التوصيات</p>
+    <p id="trend"></p>
+    <p id="news"></p>
+  </div>
+
+  <script>
+    async function loadSignals() {
+      try {
+        const res = await fetch("https://moaben.github.io/Recommendations/signals.json");
+        const data = await res.json();
+
+        document.getElementById("final-decision").textContent = "🔹 القرار النهائي: " + data.final_decision;
+        document.getElementById("trend").textContent = "📊 التحليل الفني: " + data.trend;
+        document.getElementById("news").textContent = "📰 تحليل الأخبار: " + data.news;
+
+      } catch (error) {
+        document.getElementById("final-decision").textContent = "⚠️ لم يتم تحميل التوصيات.";
+        console.error("خطأ في تحميل ملف signals.json:", error);
+      }
+    }
+
+    loadSignals(); // تحميل التوصيات عند فتح الصفحة
+  </script>
+</body>
+</html>
